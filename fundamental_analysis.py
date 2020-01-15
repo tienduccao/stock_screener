@@ -50,13 +50,17 @@ def compute_ratios(ticker, ratio_function, select_periods, interval='annual'):
         yield {period: ratio}
 
 
+def sorted_periods(periods):
+    sorted_periods = sorted([int(p) for p in periods])
+    return [str(p) for p in sorted_periods]
+
+
 def shared_periods(dict_report_a, dict_report_b):
     periods_a = set(dict_report_a.keys())
     periods_b = set(dict_report_b.keys())
     periods = periods_a.intersection(periods_b)
     # TODO sort for quarterly interval
-    sorted_periods = sorted([int(p) for p in periods])
-    return [str(p) for p in sorted_periods]
+    return sorted_periods(periods)
 
 
 def dividend_to_net_income(ticker, interval='annual'):
@@ -65,4 +69,11 @@ def dividend_to_net_income(ticker, interval='annual'):
 
     return compute_ratios(ticker, _ratio, \
         lambda ic, bs, cf: shared_periods(ic, cf),
+        interval)
+
+
+def current_ratio(ticker, interval='annual'):
+    return compute_ratios(ticker, \
+        lambda ic, bs, cf: bs['totalCurrentAsset'] / bs['totalCurrentLiability'], \
+        lambda ic, bs, cf: sorted_periods(bs.keys()),
         interval)
