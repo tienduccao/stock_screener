@@ -77,3 +77,36 @@ def current_ratio(ticker, interval='annual'):
         lambda ic, bs, cf: bs['totalCurrentAsset'] / bs['totalCurrentLiability'], \
         lambda ic, bs, cf: sorted_periods(bs.keys()),
         interval)
+
+
+def quick_ratio(ticker, interval='annual'):
+    return compute_ratios(ticker, \
+        lambda ic, bs, cf: ((bs['totalCurrentAsset'] - bs['inventory'])
+                            / bs['totalCurrentLiability']), \
+        lambda ic, bs, cf: sorted_periods(bs.keys()),
+        interval)
+
+
+def debt_to_equity(ticker, interval='annual'):
+    return compute_ratios(ticker, \
+        lambda ic, bs, cf: bs['totalLiabilities'] / bs['totalStockholderEquity'], \
+        lambda ic, bs, cf: sorted_periods(bs.keys()),
+        interval)
+
+
+def gross_profit_margin(ticker, interval='annual'):
+    return compute_ratios(ticker, \
+        lambda ic, bs, cf: ic['grossProfit'] / ic['totalRevenue'], \
+        lambda ic, bs, cf: sorted_periods(ic.keys()),
+        interval)
+
+
+def net_profit_margin(ticker, interval='annual'):
+    def _ratio(ic, dict_bs, dict_cf):
+        return ((ic['earningsBeforeInterestTaxes'] -
+                ic['interestExpense'] - ic['incomeTaxExpense']) /
+                ic['totalRevenue'])
+
+    return compute_ratios(ticker, _ratio, \
+        lambda ic, bs, cf: sorted_periods(ic.keys()),
+        interval)
