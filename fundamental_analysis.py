@@ -1,7 +1,8 @@
+import numpy as np
 from unibit_api import financial_report
 
 
-UNKNOWN_VALUE = '-'
+UNKNOWN_VALUE = np.nan
 
 
 def string_to_number(s):
@@ -47,7 +48,7 @@ def compute_ratios(ticker, ratio_function, select_periods, interval='annual'):
             )
         except:
             ratio = UNKNOWN_VALUE
-        yield {period: ratio}
+        yield (int(period), ratio)
 
 
 def sorted_periods(periods):
