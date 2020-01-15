@@ -1,0 +1,10 @@
+.ipynb_checkpoints/
+.env/
+*.pyc
+*.swp
+
+# UniBit API key 
+api_key.config
+
+# Cache folder to store financial reports
+cache/
