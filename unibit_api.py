@@ -20,7 +20,6 @@ def financial_report(ticker, statement, interval='annual'):
     if os.path.exists(ticker_cache_file):
         with open(ticker_cache_file) as f:
             _json = f.read()
-        return _json
     else:
         r = requests.get(API_ENDPOINT, params={
             'tickers': ticker,
@@ -34,5 +33,6 @@ def financial_report(ticker, statement, interval='annual'):
            _json = json.dumps(r.json())
            with open(ticker_cache_file, 'w+') as out: 
                out.write(_json)
-           return _json
+
+    return json.loads(_json)
     
