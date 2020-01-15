@@ -110,3 +110,42 @@ def net_profit_margin(ticker, interval='annual'):
     return compute_ratios(ticker, _ratio, \
         lambda ic, bs, cf: sorted_periods(ic.keys()),
         interval)
+
+
+def operating_profit_margin(ticker, interval='annual'):
+    return compute_ratios(ticker, \
+        lambda ic, bs, cf: ic['operatingIncome'] / ic['totalRevenue'], \
+        lambda ic, bs, cf: sorted_periods(ic.keys()),
+        interval)
+
+
+def interest_coverage_ratio(ticker, interval='annual'):
+    return compute_ratios(ticker, \
+        lambda ic, bs, cf: ic['operatingIncome'] / -ic['interestExpense'], \
+        lambda ic, bs, cf: sorted_periods(ic.keys()),
+        interval)
+
+
+def roe(ticker, interval='annual'):
+    def _ratio(ic, bs, dict_cf):
+        revenue = ic['totalRevenue']
+        equity = bs['totalStockholderEquity']
+        # Asset Turnover = Revenue ÷ Assets
+        # Equity Multiplier = Assets ÷ Shareholders’ Equity
+        _net_profit_margin = ((ic['earningsBeforeInterestTaxes'] -
+                ic['interestExpense'] - ic['incomeTaxExpense']) /
+                ic['totalRevenue'])
+        return _net_profit_margin * revenue / equity
+
+    return compute_ratios(ticker, _ratio, \
+        lambda ic, bs, cf: shared_periods(ic, bs),
+        interval)
+
+
+def cash_flow_ratio(ticker, interval='annual'):
+    def _ratio(ic, bs, cf):
+        return cf['totalCashFlowOperating'] / bs['totalCurrentLiability']
+
+    return compute_ratios(ticker, _ratio, \
+        lambda ic, bs, cf: shared_periods(cf, bs),
+        interval)
