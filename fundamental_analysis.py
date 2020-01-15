@@ -23,7 +23,7 @@ def dict_reports(financial_report, interval='annual'):
             report in reports}
 
 
-def compute_ratios(ticker, ratio_function, interval='annual'):
+def compute_ratios(ticker, ratio_function, select_periods, interval='annual'):
     ic = financial_report(ticker, \
                           'income_statement', \
                           interval)
@@ -34,12 +34,23 @@ def compute_ratios(ticker, ratio_function, interval='annual'):
                           'cash_flow', \
                           interval)
 
-    return ratio_function(dict_reports(ic, interval), \
-                          dict_reports(bs, interval), \
-                          dict_reports(cf, interval))
+    dict_ic = dict_reports(ic, interval)
+    dict_bs = dict_reports(bs, interval)
+    dict_cf = dict_reports(cf, interval)
+
+    for period in select_periods(dict_ic, dict_bs, dict_cf):
+        try:
+            ratio = ratio_function(
+                dict_ic[period],
+                dict_bs[period],
+                dict_cf[period]
+            )
+        except:
+            ratio = UNKNOWN_VALUE
+        yield {period: ratio}
 
 
-def comparable_periods(dict_report_a, dict_report_b):
+def shared_periods(dict_report_a, dict_report_b):
     periods_a = set(dict_report_a.keys())
     periods_b = set(dict_report_b.keys())
     periods = periods_a.intersection(periods_b)
@@ -50,13 +61,8 @@ def comparable_periods(dict_report_a, dict_report_b):
 
 def dividend_to_net_income(ticker, interval='annual'):
     def _ratio(dict_ic, dict_bs, dict_cf):
-        periods = comparable_periods(dict_ic, dict_cf)
-        for period in periods:
-            try:
-                ratio = abs(dict_cf[period]['dividendsPaid'] / \
-                           dict_ic[period]['netIncome'])
-            except:
-                ratio = UNKNOWN_VALUE
-            yield {period: ratio}
+        return abs(dict_cf['dividendsPaid'] / dict_ic['netIncome'])
 
-    return compute_ratios(ticker, _ratio, interval)
+    return compute_ratios(ticker, _ratio, \
+        lambda ic, bs, cf: shared_periods(ic, cf),
+        interval)
