@@ -64,7 +64,6 @@ def download_company_profiles(exchange):
             'dataType': 'csv',
             'accessKey': ACCESS_KEY
         })
-        print(r.status_code)
         if r.status_code == 200:
             with open(COMPANIES_CSV.format(exchange=exchange), 'a+') as out:
                 out.write(r.text)
